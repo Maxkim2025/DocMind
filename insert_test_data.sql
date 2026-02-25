@@ -1,0 +1,22 @@
+-- 插入测试用户数据
+INSERT INTO "user" (username, password, email, phone, position, gender, role, create_time, update_time) VALUES
+('user1', 'password1', 'user1@example.com', '13800000001', '开发工程师', '男', 'USER', NOW(), NOW()),
+('user2', 'password2', 'user2@example.com', '13800000002', '测试工程师', '女', 'USER', NOW(), NOW()),
+('user3', 'password3', 'user3@example.com', '13800000003', '产品经理', '男', 'USER', NOW(), NOW()),
+('user4', 'password4', 'user4@example.com', '13800000004', 'UI设计师', '女', 'USER', NOW(), NOW()),
+('user5', 'password5', 'user5@example.com', '13800000005', '前端工程师', '男', 'USER', NOW(), NOW()),
+('user6', 'password6', 'user6@example.com', '13800000006', '后端工程师', '女', 'USER', NOW(), NOW()),
+('user7', 'password7', 'user7@example.com', '13800000007', '运维工程师', '男', 'USER', NOW(), NOW()),
+('user8', 'password8', 'user8@example.com', '13800000008', '数据分析师', '女', 'USER', NOW(), NOW()),
+('user9', 'password9', 'user9@example.com', '13800000009', '架构师', '男', 'USER', NOW(), NOW()),
+('user10', 'password10', 'user10@example.com', '13800000010', '项目经理', '女', 'USER', NOW(), NOW()),
+('user11', 'password11', 'user11@example.com', '13800000011', '开发工程师', '男', 'USER', NOW(), NOW()),
+('user12', 'password12', 'user12@example.com', '13800000012', '测试工程师', '女', 'USER', NOW(), NOW()),
+('user13', 'password13', 'user13@example.com', '13800000013', '产品经理', '男', 'USER', NOW(), NOW()),
+('user14', 'password14', 'user14@example.com', '13800000014', 'UI设计师', '女', 'USER', NOW(), NOW()),
+('user15', 'password15', 'user15@example.com', '13800000015', '前端工程师', '男', 'USER', NOW(), NOW()),
+('user16', 'password16', 'user16@example.com', '13800000016', '后端工程师', '女', 'USER', NOW(), NOW()),
+('user17', 'password17', 'user17@example.com', '13800000017', '运维工程师', '男', 'USER', NOW(), NOW()),
+('user18', 'password18', 'user18@example.com', '13800000018', '数据分析师', '女', 'USER', NOW(), NOW()),
+('user19', 'password19', 'user19@example.com', '13800000019', '架构师', '男', 'USER', NOW(), NOW()),
+('user20', 'password20', 'user20@example.com', '13800000020', '项目经理', '女', 'USER', NOW(), NOW());
