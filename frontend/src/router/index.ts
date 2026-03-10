@@ -148,17 +148,36 @@ router.beforeEach((to, _from, next) => {
   
   // 检查登录状态
   const userStore = useUserStore()
+  
+  // 从localStorage重新检查登录状态，确保页面刷新后状态正确
+  const token = localStorage.getItem('token')
+  if (token && !userStore.getIsLoggedIn) {
+    // 有token但状态未同步，更新状态
+    userStore.token = token
+    userStore.role = localStorage.getItem('role') || ''
+    userStore.isLoggedIn = true
+  } else if (!token && userStore.getIsLoggedIn) {
+    // 无token但状态显示已登录，重置状态
+    userStore.resetState()
+  }
+  
   const isLoggedIn = userStore.getIsLoggedIn
   
   // 登录页面不需要检查
   if (to.path === '/login') {
-    next()
+    // 如果已登录，跳转到首页
+    if (isLoggedIn) {
+      next('/')
+    } else {
+      next()
+    }
     return
   }
   
   // 其他页面需要检查登录状态
   if (!isLoggedIn) {
-    // 未登录，跳转到登录页面
+    // 未登录，跳转到登录页面，并记录当前路径以便登录后返回
+    localStorage.setItem('redirectPath', to.fullPath)
     next('/login')
   } else {
     // 已登录，继续访问

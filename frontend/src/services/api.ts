@@ -32,11 +32,30 @@ class ApiService {
     this.instance.interceptors.response.use(
       (response: AxiosResponse<Result<any>>) => {
         if (response.data.code !== 200) {
-          return Promise.reject(new Error(response.data.message))
+          // 处理业务错误
+          const errorMessage = response.data.message || '未知错误'
+          if (errorMessage === '用户未登录' || errorMessage === 'Token无效') {
+            // 清除登录状态
+            localStorage.removeItem('token')
+            localStorage.removeItem('role')
+            // 跳转到登录页面
+            window.location.href = '/login'
+          }
+          return Promise.reject(new Error(errorMessage))
         }
         return response
       },
       (error) => {
+        // 处理网络错误
+        if (error.response) {
+          // 服务器返回错误状态码
+          if (error.response.status === 401) {
+            // 未授权，清除登录状态并跳转到登录页面
+            localStorage.removeItem('token')
+            localStorage.removeItem('role')
+            window.location.href = '/login'
+          }
+        }
         return Promise.reject(error)
       }
     )
@@ -133,25 +152,15 @@ class ApiService {
       const formData = new FormData()
       formData.append('file', file)
       
-      // 获取token
-      const token = localStorage.getItem('token')
-      
-      // 构建请求头
-      const headers: any = {
-        'Content-Type': 'multipart/form-data'
-      }
-      
-      // 如果有token，添加到请求头
-      if (token) {
-        headers.Authorization = `Bearer ${token}`
-      }
-      
       // 使用axios实例发送请求，确保baseURL和拦截器生效
+      // 注意：对于FormData，Content-Type会自动设置为multipart/form-data
       const response = await this.instance.request({
         method: 'POST',
         url: '/file/upload',
         data: formData,
-        headers: headers
+        headers: {
+          // 不手动设置Content-Type，让axios自动处理
+        }
       })
       
       return response.data.data

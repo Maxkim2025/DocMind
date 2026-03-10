@@ -81,6 +81,12 @@ public class JwtInterceptor implements HandlerInterceptor {
     public boolean preHandle(final HttpServletRequest request,
                              final HttpServletResponse response,
                              final Object handler) throws Exception {
+        // 跳过登录、hello、测试和用户注册请求的拦截
+        String requestURI = request.getRequestURI();
+        if (requestURI.equals("/user/login") || requestURI.equals("/hello") || requestURI.equals("/test") || requestURI.equals("/user")) {
+            return true;
+        }
+        
         // 从请求头中获取Authorization字段
         // 客户端应该在请求头中设置Authorization: Bearer <token>
         String token = request.getHeader("Authorization");
@@ -96,8 +102,8 @@ public class JwtInterceptor implements HandlerInterceptor {
             // 使用JwtUtils验证令牌的签名和过期时间
             if(jwtUtils.validateToken(token)){
                 // 从token中提取用户名
-                // 令牌有效，从令牌中提取主题（通常为用户名）
-                String username = jwtUtils.parseToken(token);
+                // 令牌有效，从令牌中提取纯用户名
+                String username = jwtUtils.getUsernameFromToken(token);
                 
                 if(username != null){
                     // 根据用户名查询用户信息

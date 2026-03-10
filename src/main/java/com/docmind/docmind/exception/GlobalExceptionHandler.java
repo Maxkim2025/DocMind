@@ -14,6 +14,7 @@
 package com.docmind.docmind.exception;
 
 import com.docmind.docmind.vo.Result;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -86,6 +87,25 @@ public class GlobalExceptionHandler {
         // 返回错误响应
         // 使用Result.error方法创建错误响应，设置错误信息为拼接后的字段错误信息
         return Result.error(errorMsg);
+    }
+    
+    /**
+     * 处理权限不足异常
+     * 专门处理Spring Security的AccessDeniedException异常
+     * 
+     * @param e 权限不足异常，包含权限错误信息
+     * @return 403错误响应，包含权限错误信息
+     *         格式：{"code": 403, "message": "Access Denied", "data": null}
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public Result<String> handleAccessDeniedException(AccessDeniedException e) {
+        // 打印异常栈信息
+        // 用于开发和调试，生产环境中应该使用日志框架记录
+        e.printStackTrace();
+        
+        // 返回403错误响应
+        // 使用Result.forbidden方法创建403错误响应，设置错误信息为异常的消息
+        return Result.forbidden(e.getMessage());
     }
     
     /**

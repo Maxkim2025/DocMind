@@ -16,11 +16,13 @@ package com.docmind.docmind.controller;
 import com.docmind.docmind.entity.File;
 import com.docmind.docmind.entity.User;
 import com.docmind.docmind.service.FileService;
+import com.docmind.docmind.service.UserService;
 import com.docmind.docmind.vo.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,6 +50,13 @@ public class FileController {
      */
     @Autowired
     private FileService fileService;
+    
+    /**
+     * 用户服务
+     * 用于查询用户信息
+     */
+    @Autowired
+    private UserService userService;
 
     /**
      * 上传文件
@@ -69,11 +78,21 @@ public class FileController {
         }
         
         try{
-            // 从请求中获取用户信息
-            // 用户信息由JwtInterceptor在请求处理前设置到请求属性中
-            User user = (User) request.getAttribute("user");
-            if (user == null) {
+            // 从Spring Security获取用户信息
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
                 return Result.error("用户未登录");
+            }
+            
+            // 获取用户名
+            String username = authentication.getName();
+            
+            // 根据用户名查询用户信息
+            com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<User> queryWrapper = new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>();
+            queryWrapper.eq("username", username);
+            User user = userService.getOne(queryWrapper);
+            if (user == null) {
+                return Result.error("用户不存在");
             }
             
             // 调用服务上传文件
@@ -104,11 +123,21 @@ public class FileController {
     @GetMapping("/{id}")
     public Result<File> getFileByid(@PathVariable Long id, HttpServletRequest request) {
         try {
-            // 从请求中获取用户信息
-            // 用户信息由JwtInterceptor在请求处理前设置到请求属性中
-            User user = (User) request.getAttribute("user");
-            if (user == null) {
+            // 从Spring Security获取用户信息
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
                 return Result.error("用户未登录");
+            }
+            
+            // 获取用户名
+            String username = authentication.getName();
+            
+            // 根据用户名查询用户信息
+            com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<User> queryWrapper = new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>();
+            queryWrapper.eq("username", username);
+            User user = userService.getOne(queryWrapper);
+            if (user == null) {
+                return Result.error("用户不存在");
             }
             
             // 调用服务获取文件信息
@@ -139,14 +168,27 @@ public class FileController {
     @GetMapping("/download/{id}")
     public ResponseEntity<InputStreamResource> downloadFile(@PathVariable Long id, HttpServletRequest request) {
         try {
-            // 从请求中获取用户信息
-            // 用户信息由JwtInterceptor在请求处理前设置到请求属性中
-            User user = (User) request.getAttribute("user");
-            if (user == null) {
+            // 从Spring Security获取用户信息
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
                 // 用户未登录，返回错误响应
                 return ResponseEntity.badRequest()
                         .header("Content-Type", "text/plain")
                         .body(new InputStreamResource(new ByteArrayInputStream("用户未登录".getBytes())));
+            }
+            
+            // 获取用户名
+            String username = authentication.getName();
+            
+            // 根据用户名查询用户信息
+            com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<User> queryWrapper = new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>();
+            queryWrapper.eq("username", username);
+            User user = userService.getOne(queryWrapper);
+            if (user == null) {
+                // 用户不存在，返回错误响应
+                return ResponseEntity.badRequest()
+                        .header("Content-Type", "text/plain")
+                        .body(new InputStreamResource(new ByteArrayInputStream("用户不存在".getBytes())));
             }
             
             // 1. 获取文件实体

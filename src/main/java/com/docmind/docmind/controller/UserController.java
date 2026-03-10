@@ -26,6 +26,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -57,6 +58,15 @@ public class UserController {
      */
     @Autowired
     private JwtUtils jwtUtils;
+    
+    /**
+     * 密码编码器
+     * 用于对用户密码进行加密和验证
+     * 在添加用户时对密码进行加密存储
+     * 在登录时验证密码的正确性
+     */
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * 添加用户
@@ -69,6 +79,9 @@ public class UserController {
      */
     @PostMapping
     public Result<User> addUser(@RequestBody @Valid User user) {
+        // 对密码进行加密处理
+        // 使用BCryptPasswordEncoder对密码进行加密
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         // 调用服务保存用户信息
         userService.save(user);
         // 返回成功结果，包含新创建的用户信息
@@ -265,6 +278,16 @@ public class UserController {
      */
     @PostMapping("/login")
     public Result<LoginResponse> Login(@RequestBody LoginRequest loginRequest) {
+        // 检查用户名是否为空
+        if(loginRequest.getUsername() == null || loginRequest.getUsername().isEmpty()){
+            return Result.badRequest("用户名不能为空");
+        }
+        
+        // 检查密码是否为空
+        if(loginRequest.getPassword() == null || loginRequest.getPassword().isEmpty()){
+            return Result.badRequest("密码不能为空");
+        }
+        
         // 根据用户名查询用户
         // 使用QueryWrapper构建查询条件
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -274,19 +297,18 @@ public class UserController {
         
         // 检查用户是否存在
         if(user == null){
-            return Result.error("用户不存在");
+            return Result.unauthorized("用户不存在");
         }
         
         // 检查密码是否正确
-        // 注意：这里直接比较密码字符串，仅用于测试
-        // 生产环境应该使用密码加密和验证
-        if(!user.getPassword().equals(loginRequest.getPassword())){
-            return Result.error("密码错误");
+        // 使用BCryptPasswordEncoder验证密码
+        if(!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())){
+            return Result.unauthorized("密码错误");
         }
         
         // 生成token
         // 调用JWT工具类生成令牌，使用用户名作为主题
-        String token = jwtUtils.generateToken(user.getUsername());
+        String token = jwtUtils.generateToken(user.getUsername() + ":" + user.getRole());
         
         // 构建登录响应
         // 创建LoginResponse对象，设置token和角色信息
@@ -306,7 +328,7 @@ public class UserController {
      *         成功时返回包含"admin"字符串的成功响应
      *         无权限时返回403错误
      */
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @GetMapping("/admin")
     public Result<String> admin() {
         // 返回成功结果，包含"admin"字符串
@@ -326,5 +348,19 @@ public class UserController {
     public Result<String> user() {
         // 返回成功结果，包含"user"字符串
         return Result.success("user");
+
+    }
+    
+    /**
+     * 测试接口
+     * 无需认证即可访问
+     * 
+     * @return 接口结果
+     *         成功时返回包含"test"字符串的成功响应
+     */
+    @GetMapping("/test")
+    public Result<String> test() {
+        // 返回成功结果，包含"test"字符串
+        return Result.success("test");
     }
 }

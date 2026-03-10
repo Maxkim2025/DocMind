@@ -31,7 +31,7 @@ import java.util.Date;
  * 1. Spring的@Component注解：将类标记为组件，使其可以被Spring容器管理
  * 2. Spring的@Value注解：从配置文件中读取配置值
  * 3. jjwt库：提供JWT令牌的生成、解析和验证功能
- *     
+ *
  * 配置说明：
  * - jwt.secret：JWT签名密钥，用于生成和验证令牌
  * - jwt.expiration：JWT令牌过期时间，单位为毫秒
@@ -78,7 +78,8 @@ public class JwtUtils {
         
         // 使用Jwts.builder()构建JWT令牌
         return Jwts.builder()
-                .setSubject(subject)  // 设置主题，通常为用户名
+                .setSubject(subject)  // 设置主题，通常为用户名:角色
+                .claim("authorities", subject.split(":")[1])
                 .setIssuedAt(now)  // 设置签发时间
                 .setExpiration(expirationDate)  // 设置过期时间
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()), SignatureAlgorithm.HS256)  // 设置签名
@@ -115,10 +116,10 @@ public class JwtUtils {
 
     /**
      * 解析token
-     * 从JWT令牌中提取主题（通常为用户名）
+     * 从JWT令牌中提取主题（通常为用户名:角色）
      * 
      * @param token JWT令牌字符串，格式：header.payload.signature
-     * @return 主题（用户名）
+     * @return 主题（用户名:角色）
      *         成功时返回主题字符串
      *         失败时返回null
      */
@@ -130,12 +131,54 @@ public class JwtUtils {
                     .build()
                     .parseClaimsJws(token)  // 解析令牌
                     .getBody()  // 获取令牌的载荷部分
-                    .getSubject();  // 获取主题（用户名）
+                    .getSubject();  // 获取主题（用户名:角色）
 
         }
         catch(Exception e){
             // 解析失败，返回null
             // 可能的异常：过期异常、签名错误异常、格式错误异常等
+            return null;
+        }
+    }
+    
+    /**
+     * 从token中提取用户名
+     * 
+     * @param token JWT令牌字符串
+     * @return 用户名
+     *         成功时返回用户名字符串
+     *         失败时返回null
+     */
+    public String getUsernameFromToken(String token) {
+        try{
+            String subject = parseToken(token);
+            if (subject != null) {
+                return subject.split(":")[0];
+            }
+            return null;
+        }
+        catch(Exception e){
+            return null;
+        }
+    }
+    
+    /**
+     * 从token中提取角色
+     * 
+     * @param token JWT令牌字符串
+     * @return 角色
+     *         成功时返回角色字符串
+     *         失败时返回null
+     */
+    public String getRoleFromToken(String token) {
+        try{
+            String subject = parseToken(token);
+            if (subject != null && subject.contains(":")) {
+                return subject.split(":")[1];
+            }
+            return null;
+        }
+        catch(Exception e){
             return null;
         }
     }

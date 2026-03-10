@@ -158,6 +158,57 @@ public class Result<T> {
     }
     
     /**
+     * 创建400错误响应
+     * 用于请求参数错误时返回错误信息
+     * 
+     * @param message 错误消息，具体的错误信息
+     * @param <T> 数据类型，响应数据的类型
+     * @return 400错误响应，包含响应码400、错误消息和null数据
+     *         格式：{"code": 400, "message": "错误信息", "data": null}
+     */
+    public static <T> Result<T> badRequest(String message) {
+        Result<T> result = new Result<>();
+        result.setCode(400);  // 设置响应码为400，表示请求参数错误
+        result.setMessage(message);  // 设置响应消息为具体的错误信息
+        // 失败时data为null，不需要设置
+        return result;
+    }
+    
+    /**
+     * 创建401错误响应
+     * 用于未授权时返回错误信息
+     * 
+     * @param message 错误消息，具体的错误信息
+     * @param <T> 数据类型，响应数据的类型
+     * @return 401错误响应，包含响应码401、错误消息和null数据
+     *         格式：{"code": 401, "message": "错误信息", "data": null}
+     */
+    public static <T> Result<T> unauthorized(String message) {
+        Result<T> result = new Result<>();
+        result.setCode(401);  // 设置响应码为401，表示未授权
+        result.setMessage(message);  // 设置响应消息为具体的错误信息
+        // 失败时data为null，不需要设置
+        return result;
+    }
+    
+    /**
+     * 创建403错误响应
+     * 用于权限不足时返回错误信息
+     * 
+     * @param message 错误消息，具体的错误信息
+     * @param <T> 数据类型，响应数据的类型
+     * @return 403错误响应，包含响应码403、错误消息和null数据
+     *         格式：{"code": 403, "message": "错误信息", "data": null}
+     */
+    public static <T> Result<T> forbidden(String message) {
+        Result<T> result = new Result<>();
+        result.setCode(403);  // 设置响应码为403，表示权限不足
+        result.setMessage(message);  // 设置响应消息为具体的错误信息
+        // 失败时data为null，不需要设置
+        return result;
+    }
+    
+    /**
      * 无参构造函数
      * 创建一个空的Result对象
      */

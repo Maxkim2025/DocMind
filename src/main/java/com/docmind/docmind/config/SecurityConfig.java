@@ -68,18 +68,18 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 
                 // 配置请求授权规则
-                .authorizeHttpRequests(auth -> auth
-                        // 允许登录和hello接口无需认证
-                        // 登录接口必须允许匿名访问，否则用户无法获取令牌
-                        .requestMatchers("/user/login", "/hello").permitAll()
-                        
-                        // 其他所有请求需要认证
-                        // 确保所有受保护的资源都经过身份验证
-                        .anyRequest().authenticated()
-                        
-                        // 临时允许所有请求（用于测试）
-                        // 开发环境下可以取消注释该行以方便测试
-                        // .anyRequest().permitAll()
+                .authorizeHttpRequests(authorize -> authorize
+                    // 允许登录、hello、测试和用户注册接口无需认证
+                    // 登录接口必须允许匿名访问，否则用户无法获取令牌
+                    // 用户注册接口允许匿名访问，以便创建初始管理员用户
+                    .requestMatchers("/user/login").permitAll()
+                    .requestMatchers("/hello").permitAll()
+                    .requestMatchers("/test").permitAll()
+                    .requestMatchers("/api/test/**").permitAll()
+                    .requestMatchers(org.springframework.http.HttpMethod.POST, "/user").permitAll()
+                    // 其他所有请求需要认证
+                    // 确保所有受保护的资源都经过身份验证
+                    .anyRequest().authenticated()
                 )
                 
                 // 在UsernamePasswordAuthenticationFilter之前添加JWT认证过滤器
@@ -96,16 +96,14 @@ public class SecurityConfig {
      * 用于对用户密码进行编码和验证
      * 
      * @return 密码编码器实例
-     * @deprecated 临时使用NoOpPasswordEncoder，仅用于测试
-     *             生产环境应该使用BCryptPasswordEncoder等安全的密码编码方式
-     *             NoOpPasswordEncoder不会对密码进行加密，仅用于开发测试
+     * 使用BCryptPasswordEncoder对密码进行加密存储
+     * BCrypt是一种强哈希算法，适合用于密码存储
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // 临时使用NoOpPasswordEncoder，用于测试
-        // 生产环境应该使用BCryptPasswordEncoder
-        // 例如：return new BCryptPasswordEncoder();
-        return NoOpPasswordEncoder.getInstance();
+        // 使用BCryptPasswordEncoder对密码进行加密存储
+        // BCrypt是一种强哈希算法，适合用于密码存储
+        return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
     }
 }
 

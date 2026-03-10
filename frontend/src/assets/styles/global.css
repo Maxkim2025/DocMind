@@ -1,0 +1,158 @@
+/* 全局样式重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 可交互元素通用样式 */
+.interactive-element {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 按钮点击反馈 */
+.el-button {
+  transition: all 0.15s ease;
+}
+
+.el-button:active {
+  transform: scale(0.98);
+}
+
+/* 链接点击反馈 */
+a {
+  transition: color 0.2s ease;
+}
+
+/* 表单控件交互反馈 */
+.el-input__wrapper,
+.el-select__wrapper,
+.el-cascader__wrapper,
+.el-date-picker,
+.el-time-picker {
+  transition: all 0.2s ease;
+}
+
+/* 卡片悬停效果 */
+.el-card {
+  transition: all 0.3s ease;
+}
+
+.el-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+/* 表格行悬停效果 */
+.el-table__row {
+  transition: background-color 0.2s ease;
+}
+
+/* 菜单项目交互 */
+.el-menu-item,
+.el-sub-menu__title {
+  transition: all 0.2s ease;
+}
+
+/* 加载状态动画 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #409EFF;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 骨架屏样式 */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* 错误提示样式 */
+.error-toast {
+  min-width: 200px;
+  max-width: 90%;
+  padding: 12px 20px;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  z-index: 9999;
+  transition: all 0.3s ease;
+}
+
+.error-toast.error {
+  background-color: #fef0f0;
+  border-left: 4px solid #f56c6c;
+}
+
+.error-toast.warning {
+  background-color: #fdf6ec;
+  border-left: 4px solid #e6a23c;
+}
+
+.error-toast.info {
+  background-color: #ecf5ff;
+  border-left: 4px solid #409EFF;
+}
+
+.error-toast.success {
+  background-color: #f0f9eb;
+  border-left: 4px solid #67c23a;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .error-toast {
+    width: 90%;
+    left: 5%;
+  }
+}
+
+/* 无障碍支持 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 焦点样式 */
+.el-button:focus,
+.el-input__wrapper:focus-within,
+.el-select:focus-within,
+.el-cascader:focus-within,
+.el-date-picker:focus-within,
+.el-time-picker:focus-within {
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2) !important;
+}

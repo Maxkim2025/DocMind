@@ -72,9 +72,20 @@ const handleLogin = async () => {
         console.log('开始登录，请求数据：', loginForm)
         const response = await userStore.login(loginForm)
         console.log('登录成功，响应：', response)
-        console.log('开始跳转到首页')
-        appStore.showMessage('登录成功', 'success')
-        router.push('/')
+        
+        // 检查是否有重定向路径
+        const redirectPath = localStorage.getItem('redirectPath')
+        if (redirectPath) {
+          // 清除重定向路径
+          localStorage.removeItem('redirectPath')
+          console.log('跳转到重定向路径：', redirectPath)
+          appStore.showMessage('登录成功', 'success')
+          router.push(redirectPath)
+        } else {
+          console.log('跳转到首页')
+          appStore.showMessage('登录成功', 'success')
+          router.push('/')
+        }
         console.log('跳转完成')
       } catch (error: any) {
         console.log('登录失败，错误：', error)

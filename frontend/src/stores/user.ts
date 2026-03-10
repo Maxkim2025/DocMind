@@ -15,7 +15,8 @@ export const useUserStore = defineStore('user', {
     getUserInfo: (state) => state.userInfo,
     getToken: (state) => state.token,
     getRole: (state) => state.role,
-    getIsLoggedIn: (state) => state.isLoggedIn
+    getIsLoggedIn: (state) => state.isLoggedIn,
+    getLoading: (state) => state.loading
   },
 
   actions: {
@@ -31,6 +32,8 @@ export const useUserStore = defineStore('user', {
         localStorage.setItem('role', response.role)
         return response
       } catch (error) {
+        // 登录失败时清除状态
+        this.resetState()
         throw error
       } finally {
         this.loading = false
@@ -49,9 +52,16 @@ export const useUserStore = defineStore('user', {
 
     // 获取用户信息
     async getUserInfo() {
-      // 这里可以根据实际情况从后端获取用户信息
-      // 暂时返回null
-      return this.userInfo
+      this.loading = true
+      try {
+        // 这里可以根据实际情况从后端获取用户信息
+        // 暂时返回null
+        return this.userInfo
+      } catch (error) {
+        throw error
+      } finally {
+        this.loading = false
+      }
     },
 
     // 重置状态
@@ -60,6 +70,8 @@ export const useUserStore = defineStore('user', {
       this.token = ''
       this.role = ''
       this.isLoggedIn = false
+      localStorage.removeItem('token')
+      localStorage.removeItem('role')
     }
   }
 })

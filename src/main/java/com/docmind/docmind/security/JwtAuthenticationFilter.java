@@ -18,6 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -69,30 +70,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 提取token
             String token = authHeader.substring(7);
             // 从token中提取用户名
-            String username = jwtUtils.parseToken(token);
+            String username = jwtUtils.getUsernameFromToken(token);
 
             // 检查用户名是否存在且当前没有认证信息
             if (username != null &&
                     SecurityContextHolder.getContext().getAuthentication() == null) {
                 // 加载用户详情
-                UserDetails userDetails = 
-                        userDetailsService.loadUserByUsername(username);
+                try {
+                    UserDetails userDetails = 
+                            userDetailsService.loadUserByUsername(username);
 
-                // 验证token是否有效
-                if (jwtUtils.validateToken(token)) {
-                    // 创建认证令牌
-                    UsernamePasswordAuthenticationToken authToken = 
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities()
-                            );
-                    // 设置认证详情
-                    authToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request)
-                    );
-                    // 设置认证信息到SecurityContextHolder
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                    // 验证token是否有效
+                    if (jwtUtils.validateToken(token)) {
+                        // 创建认证令牌
+                        UsernamePasswordAuthenticationToken authToken = 
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails,
+                                        null,
+                                        userDetails.getAuthorities()
+                                );
+                        // 设置认证详情
+                        authToken.setDetails(
+                                new WebAuthenticationDetailsSource().buildDetails(request)
+                        );
+                        // 设置认证信息到SecurityContextHolder
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
+                } catch (UsernameNotFoundException e) {
+                    // 用户不存在，不设置认证信息
                 }
             }
         }

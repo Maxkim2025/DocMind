@@ -45,16 +45,18 @@ public class InterceptorConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // 注册JWT拦截器到Spring MVC框架
-        registry.addInterceptor(jwtInterceptor)
-                
-                // 拦截所有请求
-                // 使用/**模式表示拦截所有路径及其子路径
-                .addPathPatterns("/**")
-                
-                // 排除登录和hello接口
-                // 登录接口必须排除，否则用户无法获取令牌
-                // hello接口用于测试，也排除在外
-                .excludePathPatterns("/user/login","/hello");
+        // 暂时禁用JWT拦截器，只使用Spring Security的JwtAuthenticationFilter
+        // registry.addInterceptor(jwtInterceptor)
+        //         
+        //         // 拦截所有请求
+        //         // 使用/**模式表示拦截所有路径及其子路径
+        //         .addPathPatterns("/**")
+        //         
+        //         // 排除登录、hello、测试和用户注册接口
+        //         // 登录接口必须排除，否则用户无法获取令牌
+        //         // hello接口用于测试，也排除在外
+        //         // 测试接口用于调试，排除在外
+        //         // 用户注册接口排除，以便创建初始管理员用户
+        //         .excludePathPatterns("/user/login","/hello","/test","/user");
     }
 }
